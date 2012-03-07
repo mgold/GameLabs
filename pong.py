@@ -35,62 +35,64 @@ font = pygame.font.Font(None, 30)
 
 # Game loop
 while True:
-	# Event handler
-	for event in pygame.event.get():
-		if event.type == pygame.QUIT:
-			sys.exit(0)
-			pygame.quit()
-		# Control the paddle with the mouse
-		elif event.type == pygame.MOUSEMOTION:
-			paddle1_rect.centery = event.pos[1]
-			# correct paddle position if it's going out of window
-			if paddle1_rect.top < 0:
-				paddle1_rect.top = 0
-			elif paddle1_rect.bottom >= SCREEN_HEIGHT:
-				paddle1_rect.bottom = SCREEN_HEIGHT
+    # Event handler
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            sys.exit(0)
+            pygame.quit()
+        # Control the paddle with the mouse
+        elif event.type == pygame.MOUSEMOTION:
+            paddle1_rect.centery = event.pos[1]
+            # correct paddle position if it's going out of window
+            if paddle1_rect.top < 0:
+                paddle1_rect.top = 0
+            elif paddle1_rect.bottom >= SCREEN_HEIGHT:
+                paddle1_rect.bottom = SCREEN_HEIGHT
 
-	# This test if up or down keys are pressed; if yes, move the paddle
-	if pygame.key.get_pressed()[pygame.K_UP] and paddle1_rect.top > 0:
-		paddle1_rect.top -= BALL_SPEED
-	elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle1_rect.bottom < SCREEN_HEIGHT:
-		paddle1_rect.top += BALL_SPEED
-	elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
-		sys.exit(0)
-		pygame.quit()
-		
-	# Update ball position
-	ball_rect.left += ball_speed[0]
-	ball_rect.top += ball_speed[1]
+    # This test if up or down keys are pressed; if yes, move the paddle
+    if pygame.key.get_pressed()[pygame.K_UP] and paddle1_rect.top > 0:
+        paddle1_rect.top -= BALL_SPEED
+    elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle1_rect.bottom < SCREEN_HEIGHT:
+        paddle1_rect.top += BALL_SPEED
+    elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
+        sys.exit(0)
+        pygame.quit()
+        
+    # Update ball position
+    ball_rect.left += ball_speed[0]
+    ball_rect.top += ball_speed[1]
 
-	# Ball collision with rails
-	if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
-		ball_speed[1] = -ball_speed[1]
-	if ball_rect.right >= SCREEN_WIDTH or ball_rect.left <= 0:
-		ball_speed[0] = -ball_speed[0]
+    # Ball collision with rails
+    if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
+        ball_speed[1] = -ball_speed[1]
+    if ball_rect.right >= SCREEN_WIDTH:
+        ball_speed[0] = -ball_speed[0]
+        score1 += 1
+    if ball_rect.left <= 0:
+        ball_speed[0] = -ball_speed[0]
+        score2 +=1
 
-	# Test if the ball is hit by the paddle; if yes reverse speed and add a point
-	if paddle1_rect.colliderect(ball_rect):
-		ball_speed[0] = -ball_speed[0]
-		score1 += 1
+    # Test if the ball is hit by the paddle; if yes reverse speed
+    if paddle1_rect.colliderect(ball_rect):
+        ball_speed[0] = -ball_speed[0]
 
-	if paddle2_rect.colliderect(ball_rect):
-		ball_speed[0] = -ball_speed[0]
-		score2 += 1
-	
-	# Clear screen
-	screen.fill((255, 255, 255))
+    if paddle2_rect.colliderect(ball_rect):
+        ball_speed[0] = -ball_speed[0]
+    
+    # Clear screen
+    screen.fill((255, 255, 255))
 
-	# Render the ball, the paddle, and the score1
-	pygame.draw.rect(screen, (0, 0, 0), paddle1_rect) # Your paddle
-	pygame.draw.rect(screen, (0, 0, 0), paddle2_rect) # Opponent paddle
-	pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
+    # Render the ball, the paddle, and the score1
+    pygame.draw.rect(screen, (0, 0, 0), paddle1_rect) # Your paddle
+    pygame.draw.rect(screen, (0, 0, 0), paddle2_rect) # Opponent paddle
+    pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
 
-	score1_text = font.render(str(score1), True, (0, 0, 0))
-	screen.blit(score1_text, ((SCREEN_WIDTH / 4) - font.size(str(score1))[0] / 2, 5)) # The score1
+    score1_text = font.render(str(score1), True, (0, 0, 0))
+    screen.blit(score1_text, ((SCREEN_WIDTH / 4) - font.size(str(score1))[0] / 2, 5)) # The score1
 
-	score2_text = font.render(str(score2), True, (0, 0, 0))
-	screen.blit(score2_text, ((SCREEN_WIDTH * 3 / 4) - font.size(str(score2))[0] / 2, 5)) # The score1
-	
-	# Update screen and wait 20 milliseconds
-	pygame.display.flip()
-	pygame.time.delay(20)
+    score2_text = font.render(str(score2), True, (0, 0, 0))
+    screen.blit(score2_text, ((SCREEN_WIDTH * 3 / 4) - font.size(str(score2))[0] / 2, 5)) # The score1
+    
+    # Update screen and wait 20 milliseconds
+    pygame.display.flip()
+    pygame.time.delay(20)
