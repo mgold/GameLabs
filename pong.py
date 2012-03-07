@@ -16,6 +16,8 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Pong")
 
+boing = pygame.mixer.Sound("boing.wav")
+
 # This is a rect that contains the ball at the beginning it is set in the center of the screen
 ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
 
@@ -75,10 +77,12 @@ while True:
     # Test if the ball is hit by the paddle; if yes reverse speed
     if paddle1_rect.colliderect(ball_rect):
         ball_speed[0] = -ball_speed[0]
+        boing.play()
 
     if paddle2_rect.colliderect(ball_rect):
         ball_speed[0] = -ball_speed[0]
-    
+        boing.play()
+
     # Clear screen
     screen.fill((255, 255, 255))
 
