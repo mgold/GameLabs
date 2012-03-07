@@ -59,10 +59,13 @@ while True:
     elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
         sys.exit(0)
         pygame.quit()
-        
+
     # Update ball position
     ball_rect.left += ball_speed[0]
     ball_rect.top += ball_speed[1]
+
+    #Paddle AI
+    paddle2_rect.centery = ball_rect.centery
 
     # Ball collision with rails
     if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
