@@ -1,5 +1,5 @@
 import pygame, sys
-
+from time import sleep
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -72,12 +72,16 @@ while True:
     # Ball collision with rails
     if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
         ball_speed[1] = -ball_speed[1]
-    if ball_rect.right >= SCREEN_WIDTH:
-        ball_speed[0] = -ball_speed[0]
+    if ball_rect.right >= SCREEN_WIDTH: #Right rail - player 1 score
+        ball_speed[0] = BALL_SPEED
+        ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
         score1 += 1
-    if ball_rect.left <= 0:
-        ball_speed[0] = -ball_speed[0]
+        sleep(1)
+    if ball_rect.left <= 0: #Left rail - player 2 score
+        ball_speed[0] = -BALL_SPEED
+        ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
         score2 +=1
+        sleep(1)
 
     # Test if the ball is hit by the paddle; if yes reverse speed
     if paddle1_rect.colliderect(ball_rect):
