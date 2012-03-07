@@ -1,5 +1,5 @@
 import pygame, sys
-from time import sleep
+
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -38,8 +38,11 @@ score2 = 0
 # Load the font for displaying the score1
 font = pygame.font.Font(None, 30)
 
+
 # Game loop
 while True:
+    sleeptime = 0
+    
     # Event handler
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -77,12 +80,18 @@ while True:
         ball_speed[0] = BALL_SPEED
         ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
         score1 += 1
-        sleep(1)
+        if score1 == 11:
+            score2 = score1 = 0
+            sleeptime = 2
+        sleeptime += 1
     if ball_rect.left <= 0: #Left rail - player 2 score
         ball_speed[0] = -BALL_SPEED
         ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
         score2 +=1
-        sleep(1)
+        if score2 == 11:
+            score2 = score1 = 0
+            sleeptime = 2
+        sleeptime += 1
 
     # Test if the ball is hit by the paddle; if yes reverse speed
     if paddle1_rect.colliderect(ball_rect):
@@ -111,4 +120,5 @@ while True:
     
     # Update screen and wait 20 milliseconds
     pygame.display.flip()
+    pygame.time.delay(1000*sleeptime)
     pygame.time.delay(20)
