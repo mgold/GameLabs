@@ -28,6 +28,8 @@ ball_speed = [BALL_SPEED, BALL_SPEED]
 paddle1_rect = pygame.Rect((PADDLE1_START_X, PADDLE1_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
 paddle2_rect = pygame.Rect((PADDLE2_START_X, PADDLE2_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
 
+centerline_rect = pygame.Rect((SCREEN_WIDTH/2, 0), (1, SCREEN_HEIGHT))
+
 # Scoring: 1 point if you hit the ball, -5 point if you miss the ball
 score1 = 0
 score2 = 0
@@ -88,6 +90,7 @@ while True:
 
     # Clear screen
     screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (255, 0, 0), centerline_rect)
 
     # Render the ball, the paddle, and the score1
     pygame.draw.rect(screen, (0, 0, 0), paddle1_rect) # Your paddle
