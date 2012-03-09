@@ -14,6 +14,7 @@ PADDLE_SPEED = BALL_SPEED * 1.5
 BALL_WIDTH_HEIGHT = 16
 MATCH_LENGTH = 11
 GOAL_WIDTH = 5
+
 def render():
     # Clear screen
     screen.fill((255, 255, 255))
