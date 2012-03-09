@@ -1,3 +1,7 @@
+This is a game of Pong that I am tweaking for my Game Development class. The
+instructor's README is below.
+
+
 #Objectives#
 In this lab, you will:
 * Practice collision detection and response

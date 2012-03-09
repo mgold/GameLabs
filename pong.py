@@ -11,6 +11,47 @@ PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 100
 BALL_SPEED = 10
 BALL_WIDTH_HEIGHT = 16
+MATCH_LENGTH = 11
+
+def render():
+    # Clear screen
+    screen.fill((255, 255, 255))
+    pygame.draw.rect(screen, (0, 0, 255), centerline1_rect)
+    pygame.draw.rect(screen, (255, 0, 0), centerline2_rect)
+
+    # Render the ball and paddles
+    pygame.draw.rect(screen, (0, 0, 255), paddle1_rect) # Your paddle
+    pygame.draw.rect(screen, (255, 0, 0), paddle2_rect) # Opponent paddle
+    pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
+
+    # Render the scores
+    score1_text = font.render(str(score1), True, (0, 0, 255))
+    screen.blit(score1_text, ((SCREEN_WIDTH / 4) - font.size(str(score1))[0] / 2, 5)) # The score1
+    score2_text = font.render(str(score2), True, (255, 0, 0))
+    screen.blit(score2_text, ((SCREEN_WIDTH * 3 / 4) - font.size(str(score2))[0] / 2, 5)) # The score2
+
+
+def win(victor, color):
+    render()
+
+    win_text = winFont.render(str(victor+" wins!"), True, color)
+    screen.blit(win_text, (280, SCREEN_HEIGHT/2))
+                        #Calculating x not working for some reason
+
+    rematch_text = font.render(str("Press any key to play again"), True, (0,0,0))
+    screen.blit(rematch_text, ((SCREEN_WIDTH / 2) - font.size(str(rematch_text))[0] / 2, SCREEN_HEIGHT/2 + 50))
+
+    pygame.display.flip()
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT or (event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE):  
+                sys.exit(0)
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                score1 = score2 = 0
+                return
+
 
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -24,7 +65,7 @@ ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGH
 # Speed of the ball (x, y)
 ball_speed = [BALL_SPEED, BALL_SPEED]
 
-# Your paddle vertically centered on the left side
+# Paddles are  vertically centered on the respective sides
 paddle1_rect = pygame.Rect((PADDLE1_START_X, PADDLE1_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
 paddle2_rect = pygame.Rect((PADDLE2_START_X, PADDLE2_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
 
@@ -35,9 +76,9 @@ centerline2_rect = pygame.Rect((SCREEN_WIDTH/2 +1, 0), (3, SCREEN_HEIGHT))
 score1 = 0
 score2 = 0
 
-# Load the font for displaying the score1
+# Load the font for displaying the score and game result
 font = pygame.font.Font(None, 30)
-
+winFont = pygame.font.Font(None, 72)
 
 # Game loop
 while True:
@@ -57,13 +98,17 @@ while True:
             elif paddle1_rect.bottom >= SCREEN_HEIGHT:
                 paddle1_rect.bottom = SCREEN_HEIGHT
 
+            if paddle2_rect.top < 0:
+                paddle2_rect.top = 0
+            elif paddle2_rect.bottom >= SCREEN_HEIGHT:
+                paddle2_rect.bottom = SCREEN_HEIGHT
+
     # This test if up or down keys are pressed; if yes, move the paddle
     if pygame.key.get_pressed()[pygame.K_UP] and paddle1_rect.top > 0:
         paddle1_rect.top -= BALL_SPEED
     elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle1_rect.bottom < SCREEN_HEIGHT:
         paddle1_rect.top += BALL_SPEED
     elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
-        sys.exit(0)
         pygame.quit()
 
     # Update ball position
@@ -80,18 +125,21 @@ while True:
         ball_speed[0] = BALL_SPEED
         ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
         score1 += 1
-        if score1 == 11:
-            score2 = score1 = 0
-            sleeptime = 2
-        sleeptime += 1
+        if score1 == MATCH_LENGTH:
+            win("Blue", (0, 0, 255))
+            score1 = score2 = 0
+        else:
+            sleeptime += 1
     if ball_rect.left <= 0: #Left rail - player 2 score
         ball_speed[0] = -BALL_SPEED
-        ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
+        #ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
+        ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score2 +=1
-        if score2 == 11:
-            score2 = score1 = 0
-            sleeptime = 2
-        sleeptime += 1
+        if score2 == MATCH_LENGTH:
+            win("Red", (255, 0, 0))
+            score1 = score2 = 0
+        else:
+            sleeptime += 1
 
     # Test if the ball is hit by the paddle; if yes reverse speed
     if paddle1_rect.colliderect(ball_rect):
@@ -102,22 +150,8 @@ while True:
         ball_speed[0] = -ball_speed[0]
         boing.play()
 
-    # Clear screen
-    screen.fill((255, 255, 255))
-    pygame.draw.rect(screen, (0, 0, 255), centerline1_rect)
-    pygame.draw.rect(screen, (255, 0, 0), centerline2_rect)
+    render()
 
-    # Render the ball, the paddle, and the score1
-    pygame.draw.rect(screen, (0, 0, 255), paddle1_rect) # Your paddle
-    pygame.draw.rect(screen, (255, 0, 0), paddle2_rect) # Opponent paddle
-    pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
-
-    score1_text = font.render(str(score1), True, (0, 0, 255))
-    screen.blit(score1_text, ((SCREEN_WIDTH / 4) - font.size(str(score1))[0] / 2, 5)) # The score1
-
-    score2_text = font.render(str(score2), True, (255, 0, 0))
-    screen.blit(score2_text, ((SCREEN_WIDTH * 3 / 4) - font.size(str(score2))[0] / 2, 5)) # The score1
-    
     # Update screen and wait 20 milliseconds
     pygame.display.flip()
     pygame.time.delay(1000*sleeptime)
