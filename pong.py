@@ -10,6 +10,7 @@ PADDLE2_START_Y = 20
 PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 100
 BALL_SPEED = 10
+PADDLE_SPEED = BALL_SPEED * 1.5
 BALL_WIDTH_HEIGHT = 16
 MATCH_LENGTH = 11
 
@@ -89,34 +90,22 @@ while True:
         if event.type == pygame.QUIT:
             sys.exit(0)
             pygame.quit()
-        # Control the paddle with the mouse
-        elif event.type == pygame.MOUSEMOTION:
-            paddle1_rect.centery = event.pos[1]
-            # correct paddle position if it's going out of window
-            if paddle1_rect.top < 0:
-                paddle1_rect.top = 0
-            elif paddle1_rect.bottom >= SCREEN_HEIGHT:
-                paddle1_rect.bottom = SCREEN_HEIGHT
-
-            if paddle2_rect.top < 0:
-                paddle2_rect.top = 0
-            elif paddle2_rect.bottom >= SCREEN_HEIGHT:
-                paddle2_rect.bottom = SCREEN_HEIGHT
 
     # This test if up or down keys are pressed; if yes, move the paddle
-    if pygame.key.get_pressed()[pygame.K_UP] and paddle1_rect.top > 0:
-        paddle1_rect.top -= BALL_SPEED
-    elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle1_rect.bottom < SCREEN_HEIGHT:
-        paddle1_rect.top += BALL_SPEED
+    if pygame.key.get_pressed()[pygame.K_w] and paddle1_rect.top > 0:
+        paddle1_rect.top -= PADDLE_SPEED
+    elif pygame.key.get_pressed()[pygame.K_s] and paddle1_rect.bottom < SCREEN_HEIGHT:
+        paddle1_rect.top += PADDLE_SPEED
+    if pygame.key.get_pressed()[pygame.K_UP] and paddle2_rect.top > 0:
+        paddle2_rect.top -= PADDLE_SPEED
+    elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle2_rect.bottom < SCREEN_HEIGHT:
+        paddle2_rect.top += PADDLE_SPEED
     elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
         pygame.quit()
 
     # Update ball position
     ball_rect.left += ball_speed[0]
     ball_rect.top += ball_speed[1]
-
-    #Paddle AI
-    paddle2_rect.centery = ball_rect.centery
 
     # Ball collision with rails
     if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
