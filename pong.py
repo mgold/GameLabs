@@ -8,17 +8,23 @@ PADDLE1_START_Y = 20
 PADDLE2_START_X = 780
 PADDLE2_START_Y = 20
 PADDLE_WIDTH = 10
-PADDLE_HEIGHT = 100
+PADDLE_HEIGHT = 80
 BALL_SPEED = 10
 PADDLE_SPEED = BALL_SPEED * 1.5
 BALL_WIDTH_HEIGHT = 16
 MATCH_LENGTH = 11
-
+GOAL_WIDTH = 5
 def render():
     # Clear screen
     screen.fill((255, 255, 255))
     pygame.draw.rect(screen, (0, 0, 255), centerline1_rect)
     pygame.draw.rect(screen, (255, 0, 0), centerline2_rect)
+    pygame.draw.rect(screen, (0, 0, 0),   edge1_rect)
+    pygame.draw.rect(screen, (0, 0, 255), goal1_rect)
+    pygame.draw.rect(screen, (0, 0, 0),   edge2_rect)
+    pygame.draw.rect(screen, (255, 0, 0), goal2_rect)
+    
+
 
     # Render the ball and paddles
     pygame.draw.rect(screen, (0, 0, 255), paddle1_rect) # Your paddle
@@ -57,7 +63,11 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Pong")
 
-boing = pygame.mixer.Sound("boing.wav")
+try:
+    boing = pygame.mixer.Sound("boing.wav")
+except pygame.error:
+    print "Sounds could not be loaded."
+    quit();
 
 # This is a rect that contains the ball at the beginning it is set in the center of the screen
 ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
@@ -71,6 +81,11 @@ paddle2_rect = pygame.Rect((PADDLE2_START_X, PADDLE2_START_Y), (PADDLE_WIDTH, PA
 
 centerline1_rect = pygame.Rect((SCREEN_WIDTH/2 -2, 0), (3, SCREEN_HEIGHT))
 centerline2_rect = pygame.Rect((SCREEN_WIDTH/2 +1, 0), (3, SCREEN_HEIGHT))
+
+edge1_rect = pygame.Rect((0, 0), (GOAL_WIDTH, SCREEN_HEIGHT))
+goal1_rect = pygame.Rect((0, (3.0/8)*SCREEN_HEIGHT), (GOAL_WIDTH, (1.0/4)*SCREEN_HEIGHT))
+edge2_rect = pygame.Rect((SCREEN_WIDTH-GOAL_WIDTH, 0), (GOAL_WIDTH, SCREEN_HEIGHT))
+goal2_rect = pygame.Rect((SCREEN_WIDTH-GOAL_WIDTH, (3.0/8)*SCREEN_HEIGHT), (GOAL_WIDTH, (1.0/4)*SCREEN_HEIGHT))
 
 # Scoring: 1 point if you hit the ball, -5 point if you miss the ball
 score1 = 0
@@ -106,21 +121,22 @@ while True:
     ball_rect.left += ball_speed[0]
     ball_rect.top += ball_speed[1]
 
-    # Ball collision with rails
+    # Ball collision with top and bottom
     if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
         ball_speed[1] = -ball_speed[1]
-    if ball_rect.right >= SCREEN_WIDTH: #Right rail - player 1 score
+    #Right goal - player 1 score
+    elif ball_rect.colliderect(goal2_rect):
         ball_speed[0] = BALL_SPEED
-        ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
+        ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score1 += 1
         if score1 == MATCH_LENGTH:
             win("Blue", (0, 0, 255))
             score1 = score2 = 0
         else:
             sleeptime += 1
-    if ball_rect.left <= 0: #Left rail - player 2 score
+    #Left goal - player 2 score
+    elif ball_rect.colliderect(goal1_rect):
         ball_speed[0] = -BALL_SPEED
-        #ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
         ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score2 +=1
         if score2 == MATCH_LENGTH:
@@ -128,13 +144,11 @@ while True:
             score1 = score2 = 0
         else:
             sleeptime += 1
-
-    # Test if the ball is hit by the paddle; if yes reverse speed
-    if paddle1_rect.colliderect(ball_rect):
+    #Ball collision with non-goal sides
+    elif ball_rect.colliderect(edge1_rect) or ball_rect.colliderect(edge2_rect):
         ball_speed[0] = -ball_speed[0]
-        boing.play()
-
-    if paddle2_rect.colliderect(ball_rect):
+    # Paddle collision - reverse speed
+    elif paddle1_rect.colliderect(ball_rect) or paddle2_rect.colliderect(ball_rect):
         ball_speed[0] = -ball_speed[0]
         boing.play()
 
