@@ -65,6 +65,8 @@ pygame.display.set_caption("Pong")
 
 try:
     boing = pygame.mixer.Sound("boing.wav")
+    thunk = pygame.mixer.Sound("thunk.wav")
+    goal  = pygame.mixer.Sound("goal.wav")
 except pygame.error:
     print "Sounds could not be loaded."
     quit();
@@ -124,8 +126,10 @@ while True:
     # Ball collision with top and bottom
     if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
         ball_speed[1] = -ball_speed[1]
+        thunk.play()
     #Right goal - player 1 score
     elif ball_rect.colliderect(goal2_rect):
+        goal.play()
         ball_speed[0] = BALL_SPEED
         ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score1 += 1
@@ -136,6 +140,7 @@ while True:
             sleeptime += 1
     #Left goal - player 2 score
     elif ball_rect.colliderect(goal1_rect):
+        goal.play()
         ball_speed[0] = -BALL_SPEED
         ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score2 +=1
@@ -147,6 +152,7 @@ while True:
     #Ball collision with non-goal sides
     elif ball_rect.colliderect(edge1_rect) or ball_rect.colliderect(edge2_rect):
         ball_speed[0] = -ball_speed[0]
+        thunk.play()
     # Paddle collision - reverse speed
     elif paddle1_rect.colliderect(ball_rect) or paddle2_rect.colliderect(ball_rect):
         ball_speed[0] = -ball_speed[0]
