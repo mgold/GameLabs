@@ -14,29 +14,48 @@ PADDLE_SPEED = BALL_SPEED * 1.5
 BALL_WIDTH_HEIGHT = 16
 MATCH_LENGTH = 11
 GOAL_WIDTH = 5
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 def render():
     # Clear screen
-    screen.fill((255, 255, 255))
-    pygame.draw.rect(screen, (0, 0, 255), centerline1_rect)
-    pygame.draw.rect(screen, (255, 0, 0), centerline2_rect)
-    pygame.draw.rect(screen, (0, 0, 0),   edge1_rect)
-    pygame.draw.rect(screen, (0, 0, 255), goal1_rect)
-    pygame.draw.rect(screen, (0, 0, 0),   edge2_rect)
-    pygame.draw.rect(screen, (255, 0, 0), goal2_rect)
-    
-
+    screen.fill(WHITE)
+    midline1_rect = pygame.Rect((300, 0), (3, SCREEN_HEIGHT))
+    midline2_rect = pygame.Rect((500, 0), (3, SCREEN_HEIGHT))
+    for i in range(20):
+        pygame.draw.rect(screen, RED, pygame.Rect((SCREEN_WIDTH/2 -3, 60*i+15), (6,30)))
+    pygame.draw.rect(screen, BLUE, midline1_rect)
+    pygame.draw.rect(screen, BLUE, midline2_rect)
+    pygame.draw.rect(screen, BLACK,   edge1_rect)
+    pygame.draw.rect(screen, BLUE, goal1_rect)
+    pygame.draw.rect(screen, BLACK,   edge2_rect)
+    pygame.draw.rect(screen, RED, goal2_rect)
+   
+    #Precomputed for performance (yes, it was noticeable)
+    pygame.draw.circle(screen, RED, (150, 150), 15)
+    pygame.draw.circle(screen, RED, (150, 150), 80, 10)
+    pygame.draw.circle(screen, RED, (150, 450), 15)
+    pygame.draw.circle(screen, RED, (150, 450), 80, 10)
+    pygame.draw.circle(screen, RED, (650, 150), 15)
+    pygame.draw.circle(screen, RED, (650, 150), 80, 10)
+    pygame.draw.circle(screen, RED, (650, 450), 15)
+    pygame.draw.circle(screen, RED, (650, 450), 80, 10)
+    pygame.draw.circle(screen, WHITE, (400, 300), 90)
+    pygame.draw.circle(screen, RED, (400, 300), 10)
+    pygame.draw.circle(screen, RED, (400, 300), 90, 10)
 
     # Render the ball and paddles
-    pygame.draw.rect(screen, (0, 0, 255), paddle1_rect) # Your paddle
-    pygame.draw.rect(screen, (255, 0, 0), paddle2_rect) # Opponent paddle
-    pygame.draw.circle(screen, (0, 0, 0), ball_rect.center, ball_rect.width / 2) # The ball
+    pygame.draw.rect(screen, BLUE, paddle1_rect) # Your paddle
+    pygame.draw.rect(screen, RED, paddle2_rect) # Opponent paddle
+    pygame.draw.circle(screen, BLACK, ball_rect.center, ball_rect.width / 2) # The ball
 
     # Render the scores
-    score1_text = font.render(str(score1), True, (0, 0, 255))
-    screen.blit(score1_text, ((SCREEN_WIDTH / 4) - font.size(str(score1))[0] / 2, 5)) # The score1
-    score2_text = font.render(str(score2), True, (255, 0, 0))
-    screen.blit(score2_text, ((SCREEN_WIDTH * 3 / 4) - font.size(str(score2))[0] / 2, 5)) # The score2
+    score1_text = font.render(str(score1), True, BLUE)
+    screen.blit(score1_text, (150 - font.size(str(score1))[0] / 2, 5)) # The score1
+    score2_text = font.render(str(score2), True, RED)
+    screen.blit(score2_text, (650  - font.size(str(score2))[0] / 2, 5)) # The score2
 
 
 def win(victor, color):
@@ -81,9 +100,6 @@ ball_speed = [BALL_SPEED, BALL_SPEED]
 # Paddles are  vertically centered on the respective sides
 paddle1_rect = pygame.Rect((PADDLE1_START_X, PADDLE1_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
 paddle2_rect = pygame.Rect((PADDLE2_START_X, PADDLE2_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
-
-centerline1_rect = pygame.Rect((SCREEN_WIDTH/2 -2, 0), (3, SCREEN_HEIGHT))
-centerline2_rect = pygame.Rect((SCREEN_WIDTH/2 +1, 0), (3, SCREEN_HEIGHT))
 
 edge1_rect = pygame.Rect((0, 0), (GOAL_WIDTH, SCREEN_HEIGHT))
 goal1_rect = pygame.Rect((0, (3.0/8)*SCREEN_HEIGHT), (GOAL_WIDTH, (1.0/4)*SCREEN_HEIGHT))
@@ -135,7 +151,7 @@ while True:
         ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score1 += 1
         if score1 == MATCH_LENGTH:
-            win("Blue", (0, 0, 255))
+            win("Blue", BLUE)
             score1 = score2 = 0
         else:
             sleeptime += 1
@@ -146,7 +162,7 @@ while True:
         ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
         score2 +=1
         if score2 == MATCH_LENGTH:
-            win("Red", (255, 0, 0))
+            win("Red", RED)
             score1 = score2 = 0
         else:
             sleeptime += 1
