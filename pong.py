@@ -1,4 +1,6 @@
 import pygame, sys
+from pygame.constants import *
+from Paddle import Paddle
 
 # Constants
 SCREEN_WIDTH = 800
@@ -11,19 +13,19 @@ PADDLE_WIDTH = 10
 PADDLE_HEIGHT = 80
 BALL_SPEED = 10
 PADDLE_SPEED = BALL_SPEED * 1.5
-BALL_WIDTH_HEIGHT = 16
+BALL_WIDTH_HEIGHT = 32
 MATCH_LENGTH = 11
 GOAL_WIDTH = 5
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+CONTROLS1 = [K_w, K_a, K_s, K_d]
+CONTROLS2 = [K_UP, K_DOWN, K_LEFT, K_RIGHT]
 
 def render():
     # Clear screen
     screen.fill(WHITE)
-    midline1_rect = pygame.Rect((300, 0), (3, SCREEN_HEIGHT))
-    midline2_rect = pygame.Rect((500, 0), (3, SCREEN_HEIGHT))
     for i in range(20):
         pygame.draw.rect(screen, RED, pygame.Rect((SCREEN_WIDTH/2 -3, 60*i+15), (6,30)))
     pygame.draw.rect(screen, BLUE, midline1_rect)
@@ -47,9 +49,9 @@ def render():
     pygame.draw.circle(screen, RED, (400, 300), 90, 10)
 
     # Render the ball and paddles
-    pygame.draw.rect(screen, BLUE, paddle1_rect) # Your paddle
-    pygame.draw.rect(screen, RED, paddle2_rect) # Opponent paddle
     pygame.draw.circle(screen, BLACK, ball_rect.center, ball_rect.width / 2) # The ball
+    paddle1.draw()
+    paddle2.draw()
 
     # Render the scores
     score1_text = font.render(str(score1), True, BLUE)
@@ -97,14 +99,15 @@ ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGH
 # Speed of the ball (x, y)
 ball_speed = [BALL_SPEED, BALL_SPEED]
 
-# Paddles are  vertically centered on the respective sides
-paddle1_rect = pygame.Rect((PADDLE1_START_X, PADDLE1_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
-paddle2_rect = pygame.Rect((PADDLE2_START_X, PADDLE2_START_Y), (PADDLE_WIDTH, PADDLE_HEIGHT))
+paddle1 = Paddle(screen, GOAL_WIDTH, 300, BLUE)
+paddle2 = Paddle(screen, 500, SCREEN_WIDTH - GOAL_WIDTH, RED)
 
 edge1_rect = pygame.Rect((0, 0), (GOAL_WIDTH, SCREEN_HEIGHT))
 goal1_rect = pygame.Rect((0, (3.0/8)*SCREEN_HEIGHT), (GOAL_WIDTH, (1.0/4)*SCREEN_HEIGHT))
 edge2_rect = pygame.Rect((SCREEN_WIDTH-GOAL_WIDTH, 0), (GOAL_WIDTH, SCREEN_HEIGHT))
 goal2_rect = pygame.Rect((SCREEN_WIDTH-GOAL_WIDTH, (3.0/8)*SCREEN_HEIGHT), (GOAL_WIDTH, (1.0/4)*SCREEN_HEIGHT))
+midline1_rect = pygame.Rect((300, 0), (3, SCREEN_HEIGHT))
+midline2_rect = pygame.Rect((500, 0), (3, SCREEN_HEIGHT))
 
 # Scoring: 1 point if you hit the ball, -5 point if you miss the ball
 score1 = 0
@@ -113,6 +116,8 @@ score2 = 0
 # Load the font for displaying the score and game result
 font = pygame.font.Font(None, 30)
 winFont = pygame.font.Font(None, 72)
+
+commands = []
 
 # Game loop
 while True:
@@ -123,18 +128,20 @@ while True:
         if event.type == pygame.QUIT:
             sys.exit(0)
             pygame.quit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == K_ESCAPE:
+                sys.exit(0)
+                pygame.quit()
+            else:
+                commands.append(event.key)
+        elif event.type == KEYUP:
+            try:
+                commands.remove(event.key)
+            except:
+                pass
 
-    # This test if up or down keys are pressed; if yes, move the paddle
-    if pygame.key.get_pressed()[pygame.K_w] and paddle1_rect.top > 0:
-        paddle1_rect.top -= PADDLE_SPEED
-    elif pygame.key.get_pressed()[pygame.K_s] and paddle1_rect.bottom < SCREEN_HEIGHT:
-        paddle1_rect.top += PADDLE_SPEED
-    if pygame.key.get_pressed()[pygame.K_UP] and paddle2_rect.top > 0:
-        paddle2_rect.top -= PADDLE_SPEED
-    elif pygame.key.get_pressed()[pygame.K_DOWN] and paddle2_rect.bottom < SCREEN_HEIGHT:
-        paddle2_rect.top += PADDLE_SPEED
-    elif pygame.key.get_pressed()[pygame.K_ESCAPE]:
-        pygame.quit()
+    paddle1.update(filter(lambda c: c in CONTROLS1, commands))
+    paddle2.update(filter(lambda c: c in CONTROLS2, commands))  
 
     # Update ball position
     ball_rect.left += ball_speed[0]
@@ -171,9 +178,9 @@ while True:
         ball_speed[0] = -ball_speed[0]
         thunk.play()
     # Paddle collision - reverse speed
-    elif paddle1_rect.colliderect(ball_rect) or paddle2_rect.colliderect(ball_rect):
-        ball_speed[0] = -ball_speed[0]
-        boing.play()
+    #elif paddle1_rect.colliderect(ball_rect) or paddle2_rect.colliderect(ball_rect):
+    #    ball_speed[0] = -ball_speed[0]
+    #    boing.play()
 
     render()
 
