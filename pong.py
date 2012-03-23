@@ -1,19 +1,12 @@
 import pygame, sys
 from pygame.constants import *
 from Paddle import Paddle
+from Puck import Puck
+from math import atan2, sin, cos
 
 # Constants
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
-PADDLE1_START_X = 10
-PADDLE1_START_Y = 20
-PADDLE2_START_X = 780
-PADDLE2_START_Y = 20
-PADDLE_WIDTH = 10
-PADDLE_HEIGHT = 80
-BALL_SPEED = 10
-PADDLE_SPEED = BALL_SPEED * 1.5
-BALL_WIDTH_HEIGHT = 32
 MATCH_LENGTH = 11
 GOAL_WIDTH = 5
 RED = (255, 0, 0)
@@ -49,7 +42,7 @@ def render():
     pygame.draw.circle(screen, RED, (400, 300), 90, 10)
 
     # Render the ball and paddles
-    pygame.draw.circle(screen, BLACK, ball_rect.center, ball_rect.width / 2) # The ball
+    puck.draw()
     paddle1.draw()
     paddle2.draw()
 
@@ -81,6 +74,15 @@ def win(victor, color):
                 score1 = score2 = 0
                 return
 
+def collide (puck, paddle):
+    #Ignoring factor of pi/2
+    momentumx = (puck.area * puck.dx**2) + (paddle.area * paddle.dx**2)
+    puck.dx = (momentumx/puck.area)**.5
+    momentumy = (puck.area * puck.dy**2) + (paddle.area * paddle.dy**2)
+    puck.dx = (momentumy/puck.area)**.5
+    paddle.dx = paddle.dy = 0
+    boing.play()
+
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Pong")
@@ -93,11 +95,7 @@ except pygame.error:
     print "Sounds could not be loaded."
     quit();
 
-# This is a rect that contains the ball at the beginning it is set in the center of the screen
-ball_rect = pygame.Rect((SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2), (BALL_WIDTH_HEIGHT, BALL_WIDTH_HEIGHT))
-
-# Speed of the ball (x, y)
-ball_speed = [BALL_SPEED, BALL_SPEED]
+puck = Puck(screen, SCREEN_WIDTH//2, SCREEN_HEIGHT//2)
 
 paddle1 = Paddle(screen, GOAL_WIDTH, 300, BLUE)
 paddle2 = Paddle(screen, 500, SCREEN_WIDTH - GOAL_WIDTH, RED)
@@ -109,7 +107,6 @@ goal2_rect = pygame.Rect((SCREEN_WIDTH-GOAL_WIDTH, (3.0/8)*SCREEN_HEIGHT), (GOAL
 midline1_rect = pygame.Rect((300, 0), (3, SCREEN_HEIGHT))
 midline2_rect = pygame.Rect((500, 0), (3, SCREEN_HEIGHT))
 
-# Scoring: 1 point if you hit the ball, -5 point if you miss the ball
 score1 = 0
 score2 = 0
 
@@ -144,18 +141,17 @@ while True:
     paddle2.update(filter(lambda c: c in CONTROLS2, commands))  
 
     # Update ball position
-    ball_rect.left += ball_speed[0]
-    ball_rect.top += ball_speed[1]
 
-    # Ball collision with top and bottom
-    if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
-        ball_speed[1] = -ball_speed[1]
+    puck.update()
+
+    # Puck collision with top and bottom
+    if puck.y <= 0 or puck.y  >= SCREEN_HEIGHT:
+        puck.collidey()
         thunk.play()
     #Right goal - player 1 score
-    elif ball_rect.colliderect(goal2_rect):
+    elif goal2_rect.colliderect(puck.rect):
         goal.play()
-        ball_speed[0] = BALL_SPEED
-        ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        puck.reset()
         score1 += 1
         if score1 == MATCH_LENGTH:
             win("Blue", BLUE)
@@ -163,10 +159,9 @@ while True:
         else:
             sleeptime += 1
     #Left goal - player 2 score
-    elif ball_rect.colliderect(goal1_rect):
+    elif goal1_rect.colliderect(puck.rect):
         goal.play()
-        ball_speed[0] = -BALL_SPEED
-        ball_rect.center = (SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2)
+        puck.reset()
         score2 +=1
         if score2 == MATCH_LENGTH:
             win("Red", RED)
@@ -174,13 +169,14 @@ while True:
         else:
             sleeptime += 1
     #Ball collision with non-goal sides
-    elif ball_rect.colliderect(edge1_rect) or ball_rect.colliderect(edge2_rect):
-        ball_speed[0] = -ball_speed[0]
+    elif puck.rect.colliderect(edge1_rect) or puck.rect.colliderect(edge2_rect):
+        puck.collidex()
         thunk.play()
-    # Paddle collision - reverse speed
-    #elif paddle1_rect.colliderect(ball_rect) or paddle2_rect.colliderect(ball_rect):
-    #    ball_speed[0] = -ball_speed[0]
-    #    boing.play()
+     #Paddle collision - reverse speed
+    elif pygame.sprite.collide_circle(paddle1, puck):
+        collide(puck, paddle1)
+    elif pygame.sprite.collide_circle(puck, paddle2):
+        collide(puck, paddle2)
 
     render()
 
